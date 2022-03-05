@@ -1,26 +1,28 @@
 const colors = require("colors");
 
-//решето Эратосфена
-function getPrimes(ending) {
+function getPrimes(start, ending) {
     const seive = [];
     const primes = [];
 
-    for (let i = 2; i <= ending; i++) {
-        if (!seive[i]) {
-            primes.push(i)
-            for (let j = i * i; j <= ending; j += i) {
-                seive[j] = true;
+    nextPrime:
+    for (let i = start; i <= ending; i++) { // Для всех i...
+        if (i > 1) {
+            for (let j = 2; j < i; j++) { // проверить, делится ли число..
+                if (i % j == 0) {
+                    continue nextPrime; // не подходит, берём следующее
+                }
+
             }
+            primes.push(i);
         }
+        continue nextPrime;
     }
-
-
     return primes;
 }
 
 function coloredNumbers(primes) {
     if (primes.length === 0) {
-        return console.log("В заданном диапазоне нет простых чисел.");
+        return console.log(colors.red("В заданном диапазоне нет простых чисел."));
     } else {
         for (let i = 0; i < primes.length; i += 3) {
             if (primes[i]) {
@@ -35,11 +37,11 @@ function coloredNumbers(primes) {
         }
     }
 }
-
-let end = parseInt(process.argv[2]);
-if (!Number.isNaN(end)) {
-    coloredNumbers(getPrimes(end));
-} else { console.log("Ошибка. Необходимо ввести число."); }
+let start = parseInt(process.argv[2]);
+let end = parseInt(process.argv[3]);
+if (!Number.isNaN(start) && !Number.isNaN(end)) {
+    coloredNumbers(getPrimes(start, end));
+} else { console.log("Ошибка. Необходимо ввести положительные числа."); }
 
 
 
