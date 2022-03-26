@@ -1,73 +1,58 @@
-const colors = require("colors");
+const process = require('process');
+const { EventEmitter } = require('events');
+const emitter = new EventEmitter();
 
-function getPrimes(start, ending) {
-    const seive = [];
-    const primes = [];
-
-    nextPrime:
-    for (let i = start; i <= ending; i++) { // Для всех i...
-        if (i > 1) {
-            for (let j = 2; j < i; j++) { // проверить, делится ли число..
-                if (i % j == 0) {
-                    continue nextPrime; // не подходит, берём следующее
-                }
-
-            }
-            primes.push(i);
+class Handler {
+    static handle(timer) {
+        let dif = Math.floor((timer.stamp - Date.now()) / 1000);
+        if (dif > 0) {
+            let s = dif % 60;
+            let m = Math.floor((dif - s) / 60) % 60;
+            let h = Math.floor((Math.floor((dif - s) | 60) - m) / 60) % 24;
+            let d = Math.floor((Math.floor((Math.floor((dif - s) / 60) - m) / 60) - h) / 24);
+            console.log(`${d} days, ${h} hours, ${m} minutes, ${s} seconds until ${timer.str}.`);
         }
-        continue nextPrime;
-    }
-    return primes;
-}
-
-function coloredNumbers(primes) {
-    if (primes.length === 0) {
-        return console.log(colors.red("В заданном диапазоне нет простых чисел."));
-    } else {
-        for (let i = 0; i < primes.length; i += 3) {
-            if (primes[i]) {
-                console.log(colors.green(primes[i]));
-            }
-            if (primes[i + 1]) {
-                console.log(colors.yellow(primes[i + 1]));
-            }
-            if (primes[i + 2]) {
-                console.log(colors.red(primes[i + 2]));
-            }
+        else {
+            console.log(`${timer.str} is in the past.`);
+            timer.stop();
         }
     }
 }
-let start = parseInt(process.argv[2]);
-let end = parseInt(process.argv[3]);
-if (!Number.isNaN(start) && !Number.isNaN(end)) {
-    coloredNumbers(getPrimes(start, end));
-} else { console.log("Ошибка. Необходимо ввести положительные числа."); }
+
+const clear = () => {
+    console.clear()
+}
 
 
+emitter.on('tick', Handler.handle);
+emitter.on('clear', clear);
 
 
+class Timer {
+    constructor(str) {
+        this.str = str;
+        let [hour, day, month, year] = str.split('-');
+        this.stamp = new Date(year, month - 1, day, hour, 0, 0).getTime();
+        this.interval = setInterval(() => { emitter.emit('tick', this) }, 1000);
+    }
 
-// let timer = [];
-// const EventEmitter = require('events');
-// for (let i = 2; i < process.argv.length; i++) {
-//     timer.push(process.argv[i]);
-// }
+    stop = function () {
+        clearInterval(this.interval);
+    }
+}
+
+// let timer1 = new Timer('21-28-7-2022');
+// let timer2 = new Timer('10-05-09-2022');
+
+let timers = [];
+for (let i = 2; i < process.argv.length; i++) {
+    timers.push(process.argv[i]);
+
+}
+
+timers.forEach((item) => {
+    new Timer(item);
+});
 
 
-// for (let i = 0; i < timer.length; i++) {
-//     let arg = timer[i].split('-',)
-//     let hour = parseInt(arg[0]);
-//     let day = parseInt(arg[1]);
-//     let month = parseInt(arg[1]);
-//     let year = parseInt(arg[1]);
-
-// }
-
-
-
-// console.log(timer);
-
-// console.log(hour);
-// console.log(day);
-// console.log(month);
-// console.log(year);
+const cleanUp = setInterval(() => { emitter.emit('clear') }, 999);
