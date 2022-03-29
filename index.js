@@ -58,49 +58,52 @@
 
 // const cleanUp = setInterval(() => { emitter.emit('clear') }, 999);
 
-// Урок 3
-const fs = require('fs');
-const process = require('process');
-// взяла только часть исходного файла для экономии места
-const ACCESS_LOG = './access1.log';
 
-// для вар2 надо убрать ...
-const streams = (...ips) => {
-    const readStream = fs.createReadStream(ACCESS_LOG, {
-        encoding: "utf-8"
-    });
 
-    if (ips.length == 0) throw new Error("IP адреса не были переданы");
+// // Урок 3
+// // File system - работа (чтение и запись) с файлом
+// const fs = require('fs');
+// const process = require('process');
+// // взяла только часть исходного файла для экономии места
+// const ACCESS_LOG = './access1.log';
 
-    ips.forEach(ip => {
+// // для вар2 надо убрать ...
+// const streams = (...ips) => {
+//     const readStream = fs.createReadStream(ACCESS_LOG, {
+//         encoding: "utf-8"
+//     });
 
-        readStream.on("data", (chunk) => {
-            const res = chunk
-                .toString()
-                .split("\n")
-                .filter((el) => el.indexOf(`${ip}`) != -1)
-                .join("\n");
-            if (res == '') { throw new Error("Одного из указанных IP адресов нет"); }
-            else {
-                const writeStream = fs.createWriteStream(`./${ip}_request.log`, {
-                    flags: 'w',
-                    encoding: "utf-8",
-                });
-                writeStream.write(res);
-                writeStream.end(() => console.log('File writing finished'));
-            }
-        });
-    });
-    readStream.on('end', () => console.log('File reading finished'));
-    readStream.on('error', () => console.log(err));
+//     if (ips.length == 0) throw new Error("IP адреса не были переданы");
 
-}
-//Вар 1
-streams("89.123.1.41", "34.48.240.111");
+//     ips.forEach(ip => {
 
-// Вар 2, универсальный с вводом ip адресов через аргументы
-// let ipAdresses = [];
-// for (let i = 2; i < process.argv.length; i++) {
-//     ipAdresses.push(process.argv[i]);
+//         readStream.on("data", (chunk) => {
+//             const res = chunk
+//                 .toString()
+//                 .split("\n")
+//                 .filter((el) => el.indexOf(`${ip}`) != -1)
+//                 .join("\n");
+//             if (res == '') { throw new Error("Одного из указанных IP адресов нет"); }
+//             else {
+//                 const writeStream = fs.createWriteStream(`./${ip}_request.log`, {
+//                     flags: 'w',
+//                     encoding: "utf-8",
+//                 });
+//                 writeStream.write(res);
+//                 writeStream.end(() => console.log('File writing finished'));
+//             }
+//         });
+//     });
+//     readStream.on('end', () => console.log('File reading finished'));
+//     readStream.on('error', () => console.log(err));
+
 // }
-// streams(ipAdresses);
+// //Вар 1
+// streams("89.123.1.41", "34.48.240.111");
+
+// // Вар 2, универсальный с вводом ip адресов через аргументы
+// // let ipAdresses = [];
+// // for (let i = 2; i < process.argv.length; i++) {
+// //     ipAdresses.push(process.argv[i]);
+// // }
+// // streams(ipAdresses);
